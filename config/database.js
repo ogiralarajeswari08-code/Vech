@@ -1,17 +1,21 @@
 const mongoose = require('mongoose');
 
-const MONGO_URI = "mongodb+srv://ogiralarajeswari08_db_user:RajiReddy@cluster0.68omnlq.mongodb.net/?appName=Cluster0";
-const MONGO_LOCAL_URI = "mongodb://localhost:27017/car_portal";
+const MONGO_ATLAS_URI = process.env.MONGO_ATLAS_URI || "mongodb+srv://ogiralarajeswari08_db_user:RajiReddy@cluster0.68omnlq.mongodb.net/car_portal?retryWrites=true&w=majority";
+const MONGO_LOCAL_URI = process.env.MONGO_LOCAL_URI || "mongodb://localhost:27017/car_portal";
 
-// Establish two connections
-const atlasConnection = mongoose.createConnection(MONGO_URI, {
+//  Always connect to Atlas
+const atlasConnection = mongoose.createConnection(MONGO_ATLAS_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-const localConnection = mongoose.createConnection(MONGO_LOCAL_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+// Only define local connection if NOT in production
+let localConnection = null;
+if (process.env.NODE_ENV !== 'production') {
+  localConnection = mongoose.createConnection(MONGO_LOCAL_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+}
 
 module.exports = { atlasConnection, localConnection };
